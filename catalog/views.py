@@ -1,71 +1,100 @@
-from django.core.paginator import Paginator, PageNotAnInteger
+from django.core.paginator import Paginator, EmptyPage
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse, reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView
+
 from catalog.models import Product, Contact, Category
-from catalog.templates.catalog.forms import ProductForm
+from catalog.templates.catalog.forms import CreateProductForm
 
 
-def home(request):
-    latest_products = Product.objects.order_by('-id')[:5]
-    context = {'latest_products': latest_products,
-               'title': 'Наши последние товары'}
-    return render(request, 'catalog/home.html', context)
+class HomeView(ListView):
+    model = Product
+    queryset = Product.objects.order_by('-id')[:5]
+    template_name = 'catalog/home.html'
+    context_object_name = 'latest_products'
+    extra_context = {'title': 'Наши последние товары'}
 
 
-def contacts(request):
-    if request.method == 'POST':
+class ContactsView(ListView):
+    model = Contact
+    template_name = 'catalog/contacts.html'
+    context_object_name = 'all_contacts'
+    extra_context = {'title': 'Контактные данные'}
+
+    def post(self, request, *args, **kwargs):
         name = request.POST.get('name')
         email = request.POST.get('email')
         message = request.POST.get('message')
         contact = Contact(name=name, email=email, message=message)
         contact.save()
         print(f'Имя пользователя: {name}, Почта: {email}, Сообщение: {message}')
-
-    all_contacts = Contact.objects.all()
-    context = {'all_contacts': all_contacts,
-               'title': 'Контактные данные'}
-    return render(request, 'catalog/contacts.html', context)
+        return redirect('contacts')
 
 
-def product_details(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    context = {'product': product}
-    return render(request, 'catalog/product_details.html', context)
+class ProductDetailsView(DetailView):
+    model = Product
+    template_name = 'catalog/product_details.html'
+    context_object_name = 'product'
 
 
-def products(request):
-    products_list = Product.objects.all()
-    paginator = Paginator(products_list, 5)
-    page = request.GET.get('page')
-    try:
-        product_page = paginator.page(page)
-    except PageNotAnInteger:
-        # Если номер страницы не является целым числом, отображаем первую страницу
-        product_page = paginator.page(1)
-    context = {'products': product_page}
-    return render(request, 'catalog/products.html', context)
+class ProductsView(ListView):
+    model = Product
+    template_name = 'catalog/products.html'
+    context_object_name = 'products'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Получение всех объектов модели Product
+        products = Product.objects.all()
+
+        # Создание экземпляра класса Paginator
+        paginator = Paginator(products, 5)  # Здесь 10 - количество объектов на странице
+
+        # Получение номера запрошенной страницы из параметра запроса
+        page_number = self.request.GET.get('page')
+
+        try:
+            # Получение объектов для указанной страницы
+            page_objects = paginator.get_page(page_number)
+        except EmptyPage:
+            # Если номер страницы недопустим, возвращаем последнюю страницу
+            page_objects = paginator.get_page(paginator.num_pages)
+
+        # Добавление объектов в контекст шаблона
+        context['products'] = page_objects
+
+        return context
 
 
-def category_products(request, category_id):
-    category = get_object_or_404(Category, id=category_id)
-    category_products_list = Product.objects.filter(category=category)
-    context = {'category': category, 'category_products_list': category_products_list}
-    return render(request, 'catalog/category_products.html', context)
+class CategoryProductsView(ListView):
+    model = Product
+    template_name = 'catalog/category_products.html'
+    context_object_name = 'category_products_list'
+
+    def get_queryset(self):
+        category_id = self.kwargs['category_id']
+        category = get_object_or_404(Category, id=category_id)
+        queryset = Product.objects.filter(category=category)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        category_id = self.kwargs['category_id']
+        category = get_object_or_404(Category, id=category_id)
+        context['category'] = category
+        return context
 
 
+class CreateProductView(CreateView):
+    model = Product
+    form_class = CreateProductForm
+    template_name = 'catalog/product_create.html'
+    extra_context = {'error': ''}
 
-def create_product(request):
-    error = ''
-    if request.method == 'POST':
-        form = ProductForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('products')
-        else:
-            error = 'Неверная форма'
+    def form_invalid(self, form):
+        self.extra_context['error'] = 'Неверная форма'
+        return self.render_to_response(self.get_context_data(form=form))
 
-    form = ProductForm()
-    context = {
-        'form': form,
-        'error': error
-    }
-    return render(request, 'catalog/product_create.html', context)
+    def get_success_url(self):
+        return reverse_lazy('catalog:products')

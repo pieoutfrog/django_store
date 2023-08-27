@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.utils import timezone
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -26,6 +26,12 @@ class Product(models.Model):
     last_change_date = models.DateField(verbose_name='Дата последнего изменения')
     objects = models.Manager()
 
+    def save(self, *args, **kwargs):
+        if not self.creation_date:
+            self.creation_date = timezone.now().date()
+        self.last_change_date = timezone.now().date()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f'{self.name}: {self.price} {self.description}'
 
@@ -46,4 +52,3 @@ class Contact(models.Model):
     class Meta:
         verbose_name = 'Контакт'
         verbose_name_plural = 'Контакты'
-
