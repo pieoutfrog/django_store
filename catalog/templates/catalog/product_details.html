@@ -1,0 +1,16 @@
+{% extends 'catalog/base.html' %}
+{% load my_tags %}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">{{ product.name }}</h2>
+            <p class="card-text">Цена: {{ product.price }}</p>
+            <p class="card-text">Описание: {{ product.description }}</p>
+            <p class="card-text">Категория: <a href="{% url 'catalog:category_products' category_id=product.category.id %}">{{ product.category.name }}</a></p>
+            <img src="{{ product.preview|mymedia }}" alt="Изображение" class="card-img-right img-fluid" style="max-width: 200px;">
+
+        </div>
+    </div>
+</div>
+{% endblock %}

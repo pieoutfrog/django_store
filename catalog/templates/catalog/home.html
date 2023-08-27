@@ -1,0 +1,20 @@
+{% extends 'catalog/base.html' %}
+<html lang="ru">
+<body>
+{% block content %}
+<section class="jumbotron text-center">
+    <div class="container">
+        <h1 class="jumbotron-heading">{{ title }}</h1>
+        <p class="lead text-muted">Не упустите возможность купить все, что вам необходимо по привлекательной цене!</p>
+    </div>
+</section>
+<div class="row">
+    {% for product in latest_products %}
+    {% include 'catalog/includes/inc_catalog_product.html' %}
+    {% endfor %}
+</div>
+
+
+{% endblock %}
+</body>
+</html>

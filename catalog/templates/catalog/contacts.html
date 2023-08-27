@@ -1,0 +1,44 @@
+{% extends 'catalog/base.html' %}
+<html lang="ru">
+<body>
+{% block content %}
+<div class="album py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div>
+                    <h3>{{ title }}</h3>
+                    <ul>
+                        {% for contact in all_contacts %}
+                        <li>
+                            <p>Имя: {{ contact.name }}</p>
+                            <p>Почта: {{ contact.email }}</p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <form method="post" action="{% url 'catalog:contacts' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="exampleInputName1" class="form-label">Ваше имя</label>
+                        <input type="text" class="form-control" name="name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="exampleInputEmail1" class="form-label">Ваша почта</label>
+                        <input type="email" class="form-control" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="exampleInputtext1" class="form-label">Обратная связь</label>
+                        <textarea class="form-control" name="message"></textarea>
+                    </div>
+                    <input type="submit" class="btn btn-primary" value="Отправить">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+{% endblock %}
+</html>

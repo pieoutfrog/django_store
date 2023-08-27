@@ -1,0 +1,15 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+{% for product in category_products_list %}
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">{{ product.name }}</h2>
+            <p class="card-text">Цена: {{ product.price }}</p>
+            <p class="card-text">Описание: {{ product.description }}</p>
+            <p class="card-text">Категория: <a href="{% url 'catalog:category_products' category_id=category.id %}">{{ category.name }}</a></p>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

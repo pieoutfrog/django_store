@@ -1,0 +1,27 @@
+{% extends 'catalog/base.html' %}
+<html lang="ru">
+<body>
+{% block content %}
+{% for product in products %}
+    {% include 'catalog/includes/inc_catalog_product.html' %}
+{% endfor %}
+
+<!-- Отображение пагинации -->
+<div class="pagination">
+    <span class="step-links">
+        {% if products.has_previous %}
+            <a href="?page=1">&laquo; первая</a>
+            <a href="?page={{ products.previous_page_number }}">Предыдущая</a>
+        {% endif %}
+
+        <span class="current-page">{{ products.number }}</span>
+
+        {% if products.has_next %}
+            <a href="?page={{ products.next_page_number }}">Следующая</a>
+            <a href="?page={{ products.paginator.num_pages }}">Последняя &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+{% endblock %}
+</body>
+</html>

@@ -1,0 +1,50 @@
+[
+  {
+    "model": "catalog.category",
+    "pk": 1,
+    "fields": {
+      "name": "Товары для дома",
+      "description": "То, что создаст уют в вашем доме."
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 2,
+    "fields": {
+      "name": "Бытовая техника",
+      "description": "Все, без чего не выжить."
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 3,
+    "fields": {
+      "name": "Электроника",
+      "description": "Здесь находятся ноутбуки, компьютеры и необходимое оборудование."
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 4,
+    "fields": {
+      "name": "Смартфоны",
+      "description": "Любые смартфоны на ваш вкус."
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 5,
+    "fields": {
+      "name": "Товары для животных",
+      "description": "Все, чтобы ваш питомец был счастлив."
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 6,
+    "fields": {
+      "name": "Акссесуары",
+      "description": "То, что сделает ваш гаджет уникальным."
+    }
+  }
+]

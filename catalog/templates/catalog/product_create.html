@@ -1,0 +1,86 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<div class="album py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+
+                            <style>
+                                /* Стили для полей формы */
+                                input[type="text"],
+                                select,
+                                textarea {
+                                    width: 100%;
+                                    padding: 10px;
+                                    border: 1px solid #ccc;
+                                    border-radius: 4px;
+                                    box-sizing: border-box;
+                                    margin-bottom: 10px;
+                                }
+
+                                /* Стили для кнопки отправки формы */
+                                button[type="submit"] {
+                                    background-color: #4CAF50;
+                                    color: white;
+                                    padding: 10px 20px;
+                                    border: none;
+                                    border-radius: 4px;
+                                    cursor: pointer;
+                                }
+
+                                /* Стили для меток полей */
+                                label {
+                                    display: block;
+                                    font-weight: bold;
+                                    margin-bottom: 5px;
+                                }
+                            </style>
+
+                            <div>
+                                <label for="id_name">Продукт</label>
+                                {{ form.name }}
+                            </div>
+
+                            <div>
+                                <label for="id_price">Цена</label>
+                                {{ form.price }}
+                            </div>
+
+                            <div>
+                                <label for="id_description">Описание</label>
+                                {{ form.description }}
+                            </div>
+
+                            <div>
+                                <label for="id_category">Категория</label>
+                                {{ form.category }}
+                            </div>
+
+                            <div>
+                                <label for="id_creation_date">Дата создания</label>
+                                {{ form.creation_date }}
+                            </div>
+
+                            <div>
+                                <label for="id_last_change_date">Дата последнего изменения</label>
+                                {{ form.last_change_date }}
+                            </div>
+
+                            <button type="submit">Создать</button>
+                            <span>{{ error }}</span>
+                        </form>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
