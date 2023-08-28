@@ -9,3 +9,11 @@ def mymedia_filter(val):
         return f'/media/{val}'
 
     return '#'
+
+
+@register.filter(name='mymedia_blog')
+def mymedia_filter(val):
+    if val:
+        return f'/media/{val}'
+
+    return '#'

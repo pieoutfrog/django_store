@@ -2,6 +2,9 @@
 <html lang="ru">
 <body>
 {% block content %}
+<div class="add-product-button">
+    <a href="{% url 'catalog:product_create' %}" class="btn btn-block btn-primary">Добавить товар</a>
+</div>
 {% for product in products %}
     {% include 'catalog/includes/inc_catalog_product.html' %}
 {% endfor %}

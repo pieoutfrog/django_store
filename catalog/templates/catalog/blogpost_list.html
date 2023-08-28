@@ -1,0 +1,17 @@
+{% extends 'catalog/base.html' %}
+<html lang="en">
+<body>
+{% block content %}
+<div class="add-product-button">
+    <a href="{% url 'catalog:blogpost_create' %}" class="btn btn-block btn-primary">Написать отзыв</a>
+</div>
+{% for blogpost in blogposts %}
+<h2>{{ blogpost.title }}</h2>
+<p>{{ blogpost.content }}</p>
+<a href="{% url 'catalog:blogpost_view' blogpost.id %}" class="btn btn-primary">Подробнее</a>
+<a href="{% url 'catalog:blogpost_edit' blogpost.id %}" class="btn btn-info">Редактировать</a>
+<a href="{% url 'catalog:blogpost_delete' blogpost.id %}" class="btn btn-dark">Удалить</a>
+{% empty %}
+<p>No blog posts found.</p>
+{% endfor %}
+{% endblock %}
