@@ -1,10 +1,13 @@
+from django.contrib.admin import TabularInline
+from django.core.mail import send_mail
 from django.core.paginator import Paginator, EmptyPage
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from pytils.translit import slugify
 
-from catalog.models import Product, Contact, Category, BlogPost
+from catalog.models import Product, Contact, Category, BlogPost, MailingSettings, EmailLog
 from catalog.forms import CreateProductForm, BlogPostForm
 
 
@@ -164,3 +167,60 @@ class BlogPostDeleteView(DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('catalog:blogpost_list')
+
+
+# class MailingSettingsListView(View):
+#     def get(self, request):
+#         mailing_settings = MailingSettings.objects.all()
+#         return render(request, 'catalog/mailing_settings_list.html', {'mailing_settings': mailing_settings})
+
+
+# class MailingSettingsCreateView(CreateView):
+#     template_name = 'catalog/mailing_settings_create.html'
+#     model = MailingSettings
+#
+#     def form_valid(self, form):
+#         mailing_settings = form.save(commit=False)
+#         mailing_settings.start_time = timezone.now()
+#         mailing_settings.end_time = timezone.now()
+#         mailing_settings.save()
+#
+#         mailing_message = mailing_settings.mailing_message
+#
+#         email_log = EmailLog.objects.create(
+#             status=form.cleaned_data['status'],
+#             mailing_settings=mailing_settings
+#         )
+#
+#         send_mail(
+#             subject=mailing_message.subject,
+#             message=mailing_message.message_content,
+#             from_email='despero45@gmail.com',
+#             recipient_list=[form.cleaned_data['email']],
+#             fail_silently=False,
+#         )
+#
+#         return redirect('catalog:mailing_settings_list')
+#
+#
+# class MailingSettingsUpdateView(View):
+#     def get(self, request, pk):
+#         settings = MailingSettings.objects.get(pk=pk)
+#         return render(request, 'catalog/mailing_settings_update.html', {'settings': settings})
+#
+#     def post(self, request, pk):
+#         settings = MailingSettings.objects.get(pk=pk)
+#         settings.start_time = request.POST.get('start_time')
+#         settings.frequency = request.POST.get('frequency')
+#         settings.status = request.POST.get('status')
+#         settings.save()
+#
+#         return redirect('catalog:mailing_settings_list')
+#
+#
+# class MailingSettingsDeleteView(View):
+#     def post(self, pk):
+#         settings = MailingSettings.objects.get(pk=pk)
+#         settings.delete()
+#
+#         return redirect('catalog/mailing_settings_list')

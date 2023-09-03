@@ -1,0 +1,10 @@
+{% extends 'catalog/base.html' %}
+<html lang="en">
+<body>
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Update</button>
+</form>
+{% endblock %}

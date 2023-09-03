@@ -1,0 +1,34 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<h2>Mailing Settings</h2>
+<ul>
+  {% for mailing_settings in mailing_settings_list %}
+    <li>{{ mailing_settings.id }} {{ mailing_settings.name }} ({{ mailing_settings.frequency }}, {{ mailing_settings.status }}) - {{ mailing_settings.start_time }}, {{ mailing_settings.end_time }}</li>
+  {% empty %}
+    <li>No mailing settings found.</li>
+  {% endfor %}
+</ul>
+
+<h2>Mailing Messages</h2>
+<ul>
+  {% for mailing_message in mailing_messages_list %}
+    <li>{{ mailing_message.id }} {{ mailing_message.subject }} - {{ mailing_message.message_content }}</li>
+  {% empty %}
+    <li>No mailing messages found.</li>
+  {% endfor %}
+</ul>
+
+<h2>Email Logs</h2>
+<ul>
+  {% for email_log in email_logs_list %}
+    <li>{{ email_log.id }} {{ email_log.user }} - {{ email_log.datetime_attempt }}</li>
+  {% empty %}
+    <li>No email logs found.</li>
+  {% endfor %}
+</ul>
+
+<a href="{% url 'catalog:mailing_settings_create' %}">Создать новую рассылку</a>
+{% endblock %}
+
+
