@@ -21,9 +21,10 @@ class Product(models.Model):
     description = models.TextField(verbose_name='Описание', **NULLABLE)
     preview = models.ImageField(upload_to='previews/', verbose_name='Превью', **NULLABLE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Категория')
-    price = models.DecimalField(max_digits=8, decimal_places=2)
+    price = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Цена')
     creation_date = models.DateField(verbose_name='Дата создания')
     last_change_date = models.DateField(verbose_name='Дата последнего изменения')
+    active_version = models.OneToOneField('Version', related_name='+', **NULLABLE, on_delete=models.SET_NULL)
     objects = models.Manager()
 
     def save(self, *args, **kwargs):
@@ -129,6 +130,8 @@ class MailingSettings(models.Model):
 class MailingClient(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name='Клиент')
     settings = models.ForeignKey(MailingSettings, on_delete=models.CASCADE, verbose_name='Настройки')
+    message = models.ForeignKey(MailingMessage, on_delete=models.CASCADE,
+                                verbose_name='Сообщение для рассылки', **NULLABLE)
     objects = models.Manager()
 
     def __str__(self):
@@ -155,3 +158,14 @@ class EmailLog(models.Model):
     class Meta:
         verbose_name = 'Лог рассылки'
         verbose_name_plural = 'Логи рассылки'
+
+
+class Version(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Товар')
+    version_number = models.CharField(max_length=50, verbose_name='Номер версии')
+    version_name = models.CharField(max_length=100, verbose_name='Название версии')
+    is_current = models.BooleanField(default=False, verbose_name='Текущая версия')
+    objects = models.Manager()
+
+    def __str__(self):
+        return f"{self.product} - {self.version_number}"

@@ -1,0 +1,13 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+  <h1>Mailing List</h1>
+{% for mailing_client in mailing_clients %}
+<h2>{{ mailing_client.client }}</h2>
+<p>{{ mailing_client.settings }}</p>
+<p>{{ mailing_client.message }}</p>
+      {% endfor %}
+<a href="{% url 'catalog:mailing_settings_create' %}">Создать новую рассылку</a>
+{% endblock %}
+
+

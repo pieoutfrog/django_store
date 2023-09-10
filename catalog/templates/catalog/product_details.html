@@ -12,8 +12,18 @@
 
         </div>
     </div>
+    <div class="add-product-button">
+    <div class="dropdown">
+        <button class="btn btn-block btn-primary dropdown-toggle" type="button" id="addDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Добавить
+        </button>
+        <div class="dropdown-menu" aria-labelledby="addDropdown">
+            <a class="dropdown-item" href="{% url 'catalog:blogpost_create' %}">Отзыв</a>
+            <a class="dropdown-item" href="{% url 'catalog:create_version' product_id=product.id %}">Версию</a>
+        </div>
+    </div>
 </div>
-<div class="add-product-button">
-    <a href="{% url 'catalog:blogpost_create' %}" class="btn btn-block btn-primary">Добавить отзыв</a>
 </div>
+
+
 {% endblock %}

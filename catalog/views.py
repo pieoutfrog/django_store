@@ -5,8 +5,8 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from pytils.translit import slugify
 
-from catalog.models import Product, Contact, Category, BlogPost, MailingSettings
-from catalog.forms import CreateProductForm, BlogPostForm, MailingSettingsForm
+from catalog.models import Product, Contact, Category, BlogPost, MailingSettings, MailingClient, Version
+from catalog.forms import CreateProductForm, BlogPostForm, MailingClientForm, VersionForm
 
 
 class HomeView(ListView):
@@ -168,20 +168,18 @@ class BlogPostDeleteView(DeleteView):
 
 
 class MailingSettingsListView(ListView):
-    model = MailingSettings
-    template_name = 'catalog/mailing_settings_list.html'
-    context_object_name = 'mailing_settings'
+    model = MailingClient
+    template_name = 'catalog/mailing_list.html'
+    context_object_name = 'mailing_clients'
 
 
 class MailingSettingsCreateView(CreateView):
     template_name = 'catalog/mailing_settings_create.html'
-    model = MailingSettings
-    form_class = MailingSettingsForm
+    model = MailingClient
+    form_class = MailingClientForm
 
     def form_valid(self, form):
         mailing_settings = form.save(commit=False)
-        mailing_settings.start_time = form.cleaned_data['start_time']
-        mailing_settings.end_time = form.cleaned_data['end_time']
         mailing_settings.save()
 
         mailing_message = mailing_settings.message
@@ -190,11 +188,11 @@ class MailingSettingsCreateView(CreateView):
             subject=mailing_message.subject,
             message=mailing_message.message_content,
             from_email='despero45@gmail.com',
-            recipient_list=[form.cleaned_data['email']],
+            recipient_list=[mailing_settings.client.email],
             fail_silently=False,
         )
 
-        return redirect('catalog:mailing_settings_list')
+        return redirect('catalog:mailing_list')
 
 #
 # class MailingSettingsDeleteView(View):
@@ -203,3 +201,30 @@ class MailingSettingsCreateView(CreateView):
 #         settings.delete()
 #
 #         return redirect('catalog/mailing_settings_list')
+
+
+class VersionCreateView(CreateView):
+    model = Version
+    form_class = VersionForm
+    template_name = 'catalog/create_version.html'
+    success_url = reverse_lazy('catalog:products')
+
+    def form_valid(self, form):
+        product_id = self.kwargs['product_id']
+        product = get_object_or_404(Product, id=product_id)
+
+        version = form.save(commit=False)
+        version.product = product
+
+        if version.is_current:
+            active_version = Version.objects.filter(product=product, is_current=True).first()
+            if active_version:
+                active_version.is_current = False
+                active_version.save()
+
+            product.active_version = version
+            product.save()
+
+        return super().form_valid(form)
+
+
