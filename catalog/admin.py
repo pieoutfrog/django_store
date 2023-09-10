@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from catalog.models import Category, Product, Contact, BlogPost, Client, MailingSettings, EmailLog, MailingMessage
+from catalog.models import Category, Product, Contact, BlogPost, Client, MailingSettings, EmailLog, MailingMessage, \
+    MailingClient
 
 
 @admin.register(Category)
@@ -25,7 +26,27 @@ class BlogPostAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'slug', 'content', 'is_published', 'views_count', 'created_date', 'preview',)
 
 
+@admin.register(MailingMessage)
+class MailingMessageAdmin(admin.ModelAdmin):
+    list_display = ('subject', 'message_content')
 
 
+@admin.register(Client)
+class ClientAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'email', 'comment')
 
 
+@admin.register(MailingSettings)
+class MailingSettingsAdmin(admin.ModelAdmin):
+    list_display = ('frequency', 'start_time', 'end_time', 'status')
+    list_filter = ('frequency', 'status')
+
+
+@admin.register(MailingClient)
+class MailingClientAdmin(admin.ModelAdmin):
+    list_display = ('client', 'settings')
+
+
+@admin.register(EmailLog)
+class EmailLogAdmin(admin.ModelAdmin):
+    list_display = ('datetime_attempt', 'status', 'client', 'settings')

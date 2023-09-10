@@ -1,11 +1,22 @@
 {% extends 'catalog/base.html' %}
-
+{% load crispy_forms_tags %}
 {% block content %}
-<h1>Create Mailing</h1>
-<form method="post">
-    {% csrf_token %}
-
-</form>
+<h3>Настройки рассылки</h3>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <button class="btn btn-primary">Оправить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 

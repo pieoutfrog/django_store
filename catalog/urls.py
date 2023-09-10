@@ -1,6 +1,7 @@
 from django.urls import path
 from catalog.views import HomeView, ContactsView, ProductsView, CategoryProductsView, ProductDetailsView, \
-    CreateProductView, BlogPostListView, BlogPostCreateView, BlogPostDetailView, BlogPostUpdateView, BlogPostDeleteView
+    CreateProductView, BlogPostListView, BlogPostCreateView, BlogPostDetailView, BlogPostUpdateView, BlogPostDeleteView, \
+    MailingSettingsCreateView
 
 app_name = 'catalog'
 
@@ -20,6 +21,6 @@ urlpatterns = [
     # path('mailing/settings/view/', MailingSettingsListView.as_view(), name='mailing_settings_list'),
     # path('mailing/settings/<int:pk>/edit/', MailingSettingsUpdateView.as_view(), name='mailing_settings_update'),
     # path('mailing/settings/<int:pk>/delete/', MailingSettingsDeleteView.as_view(), name='mailing_settings_delete'),
-    #path('mailing/settings/create/', MailingSettingsCreateView.as_view(), name='mailing_settings_create'),
+    path('mailing/settings/create/', MailingSettingsCreateView.as_view(), name='mailing_settings_create'),
 
 ]

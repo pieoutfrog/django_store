@@ -129,6 +129,7 @@ class MailingSettings(models.Model):
 class MailingClient(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name='Клиент')
     settings = models.ForeignKey(MailingSettings, on_delete=models.CASCADE, verbose_name='Настройки')
+    objects = models.Manager()
 
     def __str__(self):
         return f'{self.client} / {self.settings}'
