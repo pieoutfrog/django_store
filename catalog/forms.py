@@ -11,6 +11,7 @@ class CreateProductForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.add_input(Submit('создать', 'Создать'))
 
+
     def form_invalid(self):
         self.error = 'Неверная форма'
 
@@ -34,7 +35,8 @@ class CreateProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        fields = ['name', 'description', 'price', 'category']
+        fields = '__all__'
+        exclude = ('user',)
 
 
 class BlogPostForm(forms.ModelForm):

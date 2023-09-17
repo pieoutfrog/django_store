@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
 
+from users.models import User
+
 NULLABLE = {'blank': True, 'null': True}
 
 
@@ -24,6 +26,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Цена')
     creation_date = models.DateField(verbose_name='Дата создания')
     last_change_date = models.DateField(verbose_name='Дата последнего изменения')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Создатель')
     active_version = models.OneToOneField('Version', related_name='+', **NULLABLE, on_delete=models.SET_NULL)
     objects = models.Manager()
 
@@ -165,6 +168,7 @@ class Version(models.Model):
     version_number = models.CharField(max_length=50, verbose_name='Номер версии')
     version_name = models.CharField(max_length=100, verbose_name='Название версии')
     is_current = models.BooleanField(default=False, verbose_name='Текущая версия')
+
     objects = models.Manager()
 
     def __str__(self):

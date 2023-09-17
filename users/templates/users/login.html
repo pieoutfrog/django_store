@@ -1,0 +1,28 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+<div class="col-12">
+    <form class="row" method="post" enctype="multipart/form-data">
+        <div class="col-3"></div>
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        Вход
+                    </h3>
+                </div>
+                <div class="login-form">
+                    {% csrf_token %}
+                    {{form.as_p }}
+                    <input type="hidden" name="next" value="{{ next }}"/>
+                    <button type="submit" class="btn btn-success"> Войти</button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <p>
+<a href='{% url "users:generate_send_password" %}'>
+Забыли пароль?
+</a>
+</p>
+</div>
+{% endblock %}

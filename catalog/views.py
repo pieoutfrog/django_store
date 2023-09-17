@@ -1,7 +1,11 @@
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
 from django.core.paginator import Paginator, EmptyPage
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from pytils.translit import slugify
 
@@ -88,15 +92,23 @@ class CategoryProductsView(ListView):
         return context
 
 
-class CreateProductView(CreateView):
+class CreateProductView(LoginRequiredMixin, CreateView):
     model = Product
     form_class = CreateProductForm
     template_name = 'catalog/product_create.html'
     extra_context = {'error': ''}
 
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('users:login')
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
     def form_invalid(self, form):
-        form.form_invalid()
-        return self.render_to_response(self.get_context_data(form=form))
+        return self.render_to_response(self.get_context_data(form=form, errors=form.errors))
 
     def get_success_url(self):
         return reverse_lazy('catalog:products')
@@ -194,6 +206,7 @@ class MailingSettingsCreateView(CreateView):
 
         return redirect('catalog:mailing_list')
 
+
 #
 # class MailingSettingsDeleteView(View):
 #     def post(self, pk):
@@ -203,13 +216,15 @@ class MailingSettingsCreateView(CreateView):
 #         return redirect('catalog/mailing_settings_list')
 
 
-class VersionCreateView(CreateView):
+class VersionCreateView(LoginRequiredMixin, CreateView):
     model = Version
     form_class = VersionForm
     template_name = 'catalog/create_version.html'
     success_url = reverse_lazy('catalog:products')
 
     def form_valid(self, form):
+        # if form.instance.author != self.request.user:
+        #     redirect('users/error_create')
         product_id = self.kwargs['product_id']
         product = get_object_or_404(Product, id=product_id)
 
@@ -226,5 +241,3 @@ class VersionCreateView(CreateView):
             product.save()
 
         return super().form_valid(form)
-
-

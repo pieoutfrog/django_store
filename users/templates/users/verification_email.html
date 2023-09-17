@@ -1,0 +1,23 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card mt-5">
+                <div class="card-body">
+                    <h2 class="card-title">Подтверждение почты</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="verification_code">Введите код верификации:</label>
+                            <input type="text" class="form-control" id="verification_code" name="verification_code"
+                                   required>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Подтвердить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
