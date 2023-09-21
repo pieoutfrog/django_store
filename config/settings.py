@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'catalog',
     'crispy_forms',
     'crispy_bootstrap4',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -135,7 +136,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_HOST_USER = '@gmail.com'
-EMAIL_HOST_PASSWORD = 'l'
+EMAIL_HOST_PASSWORD = ''
 
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
@@ -143,3 +144,6 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 AUTH_USER_MODEL = 'users.User'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+
+
