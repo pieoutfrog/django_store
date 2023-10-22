@@ -1,0 +1,26 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<div class="album py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <p>Вы уверены, что хотите удалить данную рассылку?</p>
+                            <button type="submit" class="btn btn-dark">Подтвердить</button>
+                            <a href="{% url 'catalog:blogpost_list' %}" class="btn btn-info">Отменить</a>
+
+                        </form>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

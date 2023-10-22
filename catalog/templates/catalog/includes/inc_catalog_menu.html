@@ -16,6 +16,9 @@
 
                         {% if user.is_authenticated %}
                         <li><a href="{% url 'users:logout' %}" class="text-white">Выйти</a></li>
+                        <li><a href="{% url 'catalog:mailing_settings_create' %}" class="text-white">Создать
+                            рассылку</a></li>
+                        <li><a href="{% url 'catalog:mailing_list' %}" class="text-white">Список рассылок</a></li>
                         <li><a href="{% url 'users:profile' %}" class="text-white">Профиль</a></li>
                         {% else %}
                         <li><a href="{% url 'users:register' %}" class="text-white">Регистрация</a></li>

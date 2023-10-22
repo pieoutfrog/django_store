@@ -1,16 +1,14 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.mail import send_mail
 from django.core.paginator import Paginator, EmptyPage
-from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
-from django.utils.decorators import method_decorator
+from django.utils import timezone
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from pytils.translit import slugify
 
-from catalog.models import Product, Contact, Category, BlogPost, MailingSettings, MailingClient, Version
-from catalog.forms import CreateProductForm, BlogPostForm, MailingClientForm, VersionForm
+from catalog.models import Product, Contact, Category, BlogPost, MailingClient, Version, Client, MailingSettings, \
+    EmailLog
+from catalog.forms import CreateProductForm, BlogPostForm, VersionForm, MailingSettingsCreateForm
 
 
 class HomeView(ListView):
@@ -188,32 +186,83 @@ class MailingSettingsListView(ListView):
 class MailingSettingsCreateView(CreateView):
     template_name = 'catalog/mailing_settings_create.html'
     model = MailingClient
-    form_class = MailingClientForm
+    form_class = MailingSettingsCreateForm
 
     def form_valid(self, form):
-        mailing_settings = form.save(commit=False)
-        mailing_settings.save()
-
-        mailing_message = mailing_settings.message
-
-        send_mail(
-            subject=mailing_message.subject,
-            message=mailing_message.message_content,
-            from_email='despero45@gmail.com',
-            recipient_list=[mailing_settings.client.email],
-            fail_silently=False,
+        mailing_message = form.cleaned_data['message']  # Получаем объект MailingMessage из формы
+        mailing_settings = MailingSettings.objects.create(
+            start_time=timezone.now(),
+            end_time=timezone.now(),
+            status=form.cleaned_data['status'] or None,
+            message=mailing_message,  # Присваиваем объект MailingMessage
         )
 
-        return redirect('catalog:mailing_list')
+        MailingClient.objects.create(
+            client=form.cleaned_data['client'],
+            settings=mailing_settings,
+            message=mailing_message,  # Присваиваем объект MailingMessage
+        )
+
+        email_log = EmailLog.objects.create(
+            client=form.cleaned_data['client'],
+            status=form.cleaned_data['status'],
+            settings=mailing_settings,
+        )
+
+        email_log.message = mailing_message  # Присваиваем объект MailingMessage
+        email_log.save()
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('catalog:mailing_list')
 
 
-#
-# class MailingSettingsDeleteView(View):
-#     def post(self, pk):
-#         settings = MailingSettings.objects.get(pk=pk)
-#         settings.delete()
-#
-#         return redirect('catalog/mailing_settings_list')
+class MailingSettingsDetailView(DetailView):
+    template_name = 'catalog/mailing_details.html'
+    model = MailingSettings
+    context_object_name = 'mailing'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Дополнительный код для получения дополнительных данных, если требуется
+        return context
+
+
+class MailingSettingsUpdateView(UpdateView):
+    template_name = 'catalog/mailing_settings_create.html'
+    model = MailingSettings
+    form_class = MailingSettingsCreateForm
+
+    def form_valid(self, form):
+        mailing_message = form.cleaned_data['message']
+        mailing_settings = form.save(commit=False)
+        mailing_settings.message = mailing_message
+        mailing_settings.save()
+
+        mailing_client = MailingClient.objects.get(settings_id=mailing_settings.id)
+        mailing_client.client = form.cleaned_data['client']
+        mailing_client.message = mailing_message
+        mailing_client.save()
+
+        email_log = EmailLog.objects.get(settings=mailing_settings)
+        email_log.client = form.cleaned_data['client']
+        email_log.status = form.cleaned_data['status']
+        email_log.message = mailing_message
+        email_log.save()
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('catalog:mailing_details', args=[self.kwargs.get('pk')])
+
+
+class MailingSettingsDeleteView(DeleteView):
+    template_name = 'catalog/mailingclient_confirm_delete.html'
+    model = MailingSettings
+
+    def get_success_url(self):
+        return reverse_lazy('catalog:mailing_list')
 
 
 class VersionCreateView(LoginRequiredMixin, CreateView):

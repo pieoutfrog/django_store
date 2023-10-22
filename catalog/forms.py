@@ -1,7 +1,7 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
-from catalog.models import Product, BlogPost, MailingClient, Version
+from catalog.models import Product, BlogPost, MailingClient, Version, Client, MailingMessage, MailingSettings
 from django import forms
 
 
@@ -10,7 +10,6 @@ class CreateProductForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.add_input(Submit('создать', 'Создать'))
-
 
     def form_invalid(self):
         self.error = 'Неверная форма'
@@ -51,17 +50,26 @@ class BlogPostForm(forms.ModelForm):
         model = BlogPost
         fields = ['title', 'content', 'preview']
 
+    # start_time = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
+    # end_time = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
 
-class MailingClientForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        self.helper.add_input(Submit('submit', 'Отправить'))
 
+class MailingSettingsCreateForm(forms.ModelForm):
     class Meta:
-        model = MailingClient
+        model = MailingSettings
         fields = '__all__'
+        widgets = {
+            'start_time': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'end_time': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'frequency': forms.Select(attrs={'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+            'message': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+    client = forms.ModelChoiceField(
+        queryset=Client.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 
 
 class VersionForm(forms.ModelForm):

@@ -1,0 +1,41 @@
+{% extends 'catalog/base.html' %}
+{% load my_tags %}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">{{ mailing.get_frequency_display }} рассылка </h2>
+            <h6 class="card-title">Статус: {{ mailing.get_status_display }}</h6>
+            <h4>Клиент рассылки:</h4>
+            <p class="card-text">{{ mailing }}
+                {{ mailing_client }}
+                {{ mailing.client.description}}
+            </p>
+            <p>{{ mailing.start_time }} - {{ mailing.end_time }}</p>
+            <h4>Сообщение рассылки:</h4>
+            <p>{{ mailing.message }}</p>
+            <h4>Логи рассылки:</h4>
+            {% for log in mailing.emaillog_set.all %}
+            <p>{{ log.datetime_attempt }} - {{ log.get_status_display }}</p>
+            {% endfor %}
+
+
+            <div class="dropdown">
+                <button class="btn btn-block btn-primary dropdown-toggle" type="button" id="addDropdown"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Редактирование
+                </button>
+                <div class="dropdown-menu" aria-labelledby="addDropdown">
+                    <a href="{% url 'catalog:mailing_settings_delete' mailing.id %}"
+                       class="btn btn-dark">Удалить</a>
+                    <a href="{% url 'catalog:mailing_settings_update' mailing.id %}"
+                       class="btn btn-info">Редактировать</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

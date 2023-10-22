@@ -121,9 +121,11 @@ class MailingSettings(models.Model):
     status = models.CharField(max_length=20, choices=DELIVERY_STATUS_CHOICES, default='created')
     message = models.ForeignKey(MailingMessage, on_delete=models.CASCADE,
                                 verbose_name='Сообщение для рассылки', **NULLABLE)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE,
+                               verbose_name='Клиент рассылки', **NULLABLE)
 
     def __str__(self):
-        return f"{self.frequency} рассылка в {self.start_time}"
+        return f"{self.frequency} рассылка в {self.start_time} {self.client}"
 
     class Meta:
         verbose_name = 'Рассылка'
@@ -142,6 +144,7 @@ class MailingClient(models.Model):
 
     class Meta:
         verbose_name = 'Клиент рассылки'
+        verbose_name_plural = 'Клиенты рассылки'
 
 
 class EmailLog(models.Model):
@@ -156,7 +159,7 @@ class EmailLog(models.Model):
     objects = models.Manager()
 
     def __str__(self):
-        return f'Логи рассылки - {self.datetime_attempt}'
+        return f'Логи рассылки - {self.status}'
 
     class Meta:
         verbose_name = 'Лог рассылки'

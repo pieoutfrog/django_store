@@ -38,13 +38,13 @@ class ClientAdmin(admin.ModelAdmin):
 
 @admin.register(MailingSettings)
 class MailingSettingsAdmin(admin.ModelAdmin):
-    list_display = ('frequency', 'start_time', 'end_time', 'status')
+    list_display = ('id', 'frequency', 'start_time', 'end_time', 'status')
     list_filter = ('frequency', 'status')
 
 
 @admin.register(MailingClient)
 class MailingClientAdmin(admin.ModelAdmin):
-    list_display = ('client', 'settings')
+    list_display = ('id', 'client', 'settings')
 
 
 @admin.register(EmailLog)
