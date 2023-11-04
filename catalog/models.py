@@ -9,6 +9,7 @@ NULLABLE = {'blank': True, 'null': True}
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name='Наименование')
     description = models.TextField(verbose_name='Описание', **NULLABLE)
+    objects = models.Manager()
 
     def __str__(self):
         return f'{self.name}: {self.description}'

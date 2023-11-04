@@ -1,9 +1,11 @@
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from pytils.translit import slugify
 
@@ -40,6 +42,10 @@ class ProductDetailsView(DetailView):
     model = Product
     template_name = 'catalog/product_details.html'
     context_object_name = 'product'
+    if settings.CACHE_ENABLED:
+        @cache_page(60 * 15)  # Пример: кешировать результат на 15 минут
+        def get(self, request, *args, **kwargs):
+            return super().get(request, *args, **kwargs)
 
 
 class ProductsView(ListView):

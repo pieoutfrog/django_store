@@ -1,3 +1,6 @@
+import os
+from dotenv import load_dotenv
+
 """
 Django settings for config project.
 
@@ -131,13 +134,16 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 FIXTURES_DIR = os.path.join(BASE_DIR, 'data')
 
+dot_env = os.path.join(BASE_DIR, '.env')
+load_dotenv(dotenv_path=dot_env)
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-EMAIL_HOST_USER = 'despero45@gmail.com'
-EMAIL_HOST_PASSWORD = 'ligrzevyshlhzisa'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
@@ -148,3 +154,13 @@ LOGOUT_REDIRECT_URL = '/'
 APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 
 APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
+
+CACHE_ENABLED = os.getenv('CACHE_ENABLED')
+
+if CACHE_ENABLED:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": "redis://127.0.0.1:6379",
+        }
+    }
