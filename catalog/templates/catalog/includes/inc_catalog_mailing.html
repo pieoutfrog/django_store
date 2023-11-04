@@ -3,10 +3,22 @@
 <div class="col-md-6">
     <div class="card mb-4">
         <div class="card-body">
-            <h2 class="card-title">{{ mailing_client.settings.get_frequency_display }} рассылка </h2>
-            <p class="card-text">{{ mailing_client.client }}</p>
+            <h3 class="card-title">{{ mailing_client.get_frequency_display }} рассылка </h3>
+            <p>{{ mailing_client.start_time }} - {{ mailing_client.end_time }}</p>
+            <h4>Клиенты рассылки</h4>
+            {% for client in mailing_client.client.all %}
+            <div>
+                <h6>{{ client }}</h6>
+
+            </div>
+            {% empty %}
+            <p>Нет связанных клиентов.</p>
+            {% endfor %}
+
+
             <h4>Сообщение рассылки:</h4>
             <p>{{ mailing_client.message }}</p>
+            <h5>{{ mailing_client.get_status_display }}</h5>
             <a href="{% url 'catalog:mailing_details' mailing_client.id %}"
                class="btn btn-primary">Подробнее</a>
             <a href="{% url 'catalog:mailing_settings_update' mailing_client.id %}"

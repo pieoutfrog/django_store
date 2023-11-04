@@ -20,6 +20,7 @@
         <div class="dropdown-menu" aria-labelledby="addDropdown">
             <a class="dropdown-item" href="{% url 'catalog:blogpost_create' %}">Отзыв</a>
             <a class="dropdown-item" href="{% url 'catalog:create_version' product_id=product.id %}">Версию</a>
+            <a class="dropdown-item" href="{% url 'catalog:product_edit' product.id %}">Изменить</a>
         </div>
     </div>
 </div>

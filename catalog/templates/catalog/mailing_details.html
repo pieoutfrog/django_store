@@ -6,18 +6,20 @@
         <div class="card-body">
             <h2 class="card-title">{{ mailing.get_frequency_display }} рассылка </h2>
             <h6 class="card-title">Статус: {{ mailing.get_status_display }}</h6>
-            <h4>Клиент рассылки:</h4>
-            <p class="card-text">{{ mailing }}
-                {{ mailing_client }}
-                {{ mailing.client.description}}
-            </p>
+            <h4>Клиенты рассылки:</h4>
+                {% for client in mailing.client.all %}
+            <div>
+                <h6> Имя: {{ client.full_name }}</h6>
+                <p>Почта: {{ client.email }}</p>
+                <p>Комментарий: {{ client.comment }}</p>
+            </div>
+            {% empty %}
+            <p>Нет связанных клиентов.</p>
+            {% endfor %}
+            <h4>Время рассылки:</h4>
             <p>{{ mailing.start_time }} - {{ mailing.end_time }}</p>
             <h4>Сообщение рассылки:</h4>
-            <p>{{ mailing.message }}</p>
-            <h4>Логи рассылки:</h4>
-            {% for log in mailing.emaillog_set.all %}
-            <p>{{ log.datetime_attempt }} - {{ log.get_status_display }}</p>
-            {% endfor %}
+            <p>{{ mailing.message.subject }}: {{ mailing.message.message_content }}</p>
 
 
             <div class="dropdown">

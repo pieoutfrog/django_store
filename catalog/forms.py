@@ -1,7 +1,7 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
-from catalog.models import Product, BlogPost, MailingClient, Version, Client, MailingMessage, MailingSettings
+from catalog.models import Product, BlogPost, Version, Client, MailingMessage, MailingSettings
 from django import forms
 
 
@@ -38,6 +38,17 @@ class CreateProductForm(forms.ModelForm):
         exclude = ('user',)
 
 
+class CreateTestProductForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.add_input(Submit('обновить', 'Обновить'))
+
+    class Meta:
+        model = Product
+        fields = ['description', 'name', 'is_published']
+
+
 class BlogPostForm(forms.ModelForm):
     preview = forms.ImageField(label='Загрузить изображение')
 
@@ -65,11 +76,6 @@ class MailingSettingsCreateForm(forms.ModelForm):
             'status': forms.Select(attrs={'class': 'form-control'}),
             'message': forms.Select(attrs={'class': 'form-control'}),
         }
-
-    client = forms.ModelChoiceField(
-        queryset=Client.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
 
 
 class VersionForm(forms.ModelForm):

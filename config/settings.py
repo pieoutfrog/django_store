@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap4',
     'users',
+    "django_apscheduler",
 ]
 
 MIDDLEWARE = [
@@ -138,12 +139,12 @@ EMAIL_USE_SSL = False
 EMAIL_HOST_USER = 'despero45@gmail.com'
 EMAIL_HOST_PASSWORD = 'ligrzevyshlhzisa'
 
-
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 AUTH_USER_MODEL = 'users.User'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 
-
+APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds

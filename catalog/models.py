@@ -28,6 +28,7 @@ class Product(models.Model):
     last_change_date = models.DateField(verbose_name='Дата последнего изменения')
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Создатель')
     active_version = models.OneToOneField('Version', related_name='+', **NULLABLE, on_delete=models.SET_NULL)
+    is_published = models.BooleanField(default=False)
     objects = models.Manager()
 
     def save(self, *args, **kwargs):
@@ -40,6 +41,12 @@ class Product(models.Model):
         return f'{self.name}: {self.price} {self.description}'
 
     class Meta:
+        permissions = [
+            ("can_set_product_publication", "Can set product publication"),
+            ("can_change_product_description", "Can change product description"),
+            ("can_change_product_category", "Can change product category"),
+        ]
+
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
 
@@ -115,14 +122,14 @@ class MailingSettings(models.Model):
         ('created', 'Создана'),
         ('running', 'Запущена'),
     )
-    start_time = models.DateTimeField(default=None)
+    start_time = models.DateTimeField(blank=True)
     end_time = models.DateTimeField(default=None)
     frequency = models.CharField(max_length=20, choices=DELIVERY_FREQUENCY_CHOICES, default='weekly')
     status = models.CharField(max_length=20, choices=DELIVERY_STATUS_CHOICES, default='created')
     message = models.ForeignKey(MailingMessage, on_delete=models.CASCADE,
                                 verbose_name='Сообщение для рассылки', **NULLABLE)
-    client = models.ForeignKey(Client, on_delete=models.CASCADE,
-                               verbose_name='Клиент рассылки', **NULLABLE)
+    client = models.ManyToManyField(Client,
+                                    verbose_name='Клиент рассылки')
 
     def __str__(self):
         return f"{self.frequency} рассылка в {self.start_time} {self.client}"
@@ -132,21 +139,6 @@ class MailingSettings(models.Model):
         verbose_name_plural = 'Рассылки'
 
 
-class MailingClient(models.Model):
-    client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name='Клиент')
-    settings = models.ForeignKey(MailingSettings, on_delete=models.CASCADE, verbose_name='Настройки')
-    message = models.ForeignKey(MailingMessage, on_delete=models.CASCADE,
-                                verbose_name='Сообщение для рассылки', **NULLABLE)
-    objects = models.Manager()
-
-    def __str__(self):
-        return f'{self.client} / {self.settings}'
-
-    class Meta:
-        verbose_name = 'Клиент рассылки'
-        verbose_name_plural = 'Клиенты рассылки'
-
-
 class EmailLog(models.Model):
     STATUSES = (
         ('STATUS_OK', 'Успешно'),
@@ -154,7 +146,7 @@ class EmailLog(models.Model):
     )
     datetime_attempt = models.DateTimeField(auto_now_add=True, verbose_name='Последняя попытка')
     status = models.CharField(choices=STATUSES, default='STATUS_OK', verbose_name='Статус')
-    client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name='Клиент', **NULLABLE)
+    client = models.ManyToManyField(Client, verbose_name='Клиент')
     settings = models.ForeignKey(MailingSettings, on_delete=models.CASCADE, verbose_name='Настройки', **NULLABLE)
     objects = models.Manager()
 

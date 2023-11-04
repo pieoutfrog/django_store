@@ -1,4 +1,5 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
@@ -6,9 +7,9 @@ from django.utils import timezone
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from pytils.translit import slugify
 
-from catalog.models import Product, Contact, Category, BlogPost, MailingClient, Version, Client, MailingSettings, \
+from catalog.models import Product, Contact, Category, BlogPost, Version, Client, MailingSettings, \
     EmailLog
-from catalog.forms import CreateProductForm, BlogPostForm, VersionForm, MailingSettingsCreateForm
+from catalog.forms import CreateProductForm, BlogPostForm, VersionForm, MailingSettingsCreateForm, CreateTestProductForm
 
 
 class HomeView(ListView):
@@ -112,6 +113,48 @@ class CreateProductView(LoginRequiredMixin, CreateView):
         return reverse_lazy('catalog:products')
 
 
+class UpdateProductView(LoginRequiredMixin, UpdateView):
+    model = Product
+    template_name = 'catalog/product_create.html'
+    extra_context = {'error': ''}
+    permission_required = ['catalog.can_set_product_publication', 'catalog.can_change_product_description',
+                           'catalog.can_change_product_category']
+
+    permission_denied_message = "У вас нет необходимых разрешений для редактирования продукта."
+
+    def get_form_class(self):
+        print(self.request.user.groups.all())
+        if self.request.user.groups.filter(name='Мочератор').exists():
+            return CreateTestProductForm
+        else:
+            return CreateProductForm
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('users:login')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        # Получаем объект Product, который мы хотим редактировать
+        obj = super().get_object(queryset)
+
+        # Проверяем, является ли текущий пользователь владельцем продукта
+        if obj.user != self.request.user:
+            raise PermissionDenied("Вы не являетесь владельцем этого продукта.")
+
+        return obj
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form, errors=form.errors))
+
+    def get_success_url(self):
+        return reverse('catalog:product_details', args=[self.kwargs.get('pk')])
+
+
 class BlogPostListView(ListView):
     model = BlogPost
     template_name = 'catalog/blogpost_list.html'
@@ -178,42 +221,27 @@ class BlogPostDeleteView(DeleteView):
 
 
 class MailingSettingsListView(ListView):
-    model = MailingClient
+    model = MailingSettings
     template_name = 'catalog/mailing_list.html'
     context_object_name = 'mailing_clients'
+    mailing_settings = MailingSettings.objects.all()
+    context = {
+        'mailing_settings': mailing_settings,
+    }
 
 
 class MailingSettingsCreateView(CreateView):
     template_name = 'catalog/mailing_settings_create.html'
-    model = MailingClient
+    model = MailingSettings
     form_class = MailingSettingsCreateForm
 
     def form_valid(self, form):
         mailing_message = form.cleaned_data['message']  # Получаем объект MailingMessage из формы
-        mailing_settings = MailingSettings.objects.create(
-            start_time=timezone.now(),
-            end_time=timezone.now(),
-            status=form.cleaned_data['status'] or None,
-            message=mailing_message,  # Присваиваем объект MailingMessage
-        )
-
-        MailingClient.objects.create(
-            client=form.cleaned_data['client'],
-            settings=mailing_settings,
-            message=mailing_message,  # Присваиваем объект MailingMessage
-        )
-
-        email_log = EmailLog.objects.create(
-            client=form.cleaned_data['client'],
-            status=form.cleaned_data['status'],
-            settings=mailing_settings,
-        )
-
-        email_log.message = mailing_message  # Присваиваем объект MailingMessage
-        email_log.save()
+        # в функции по крону будет создаваться лог
 
         return super().form_valid(form)
 
+    # проверка времени в кроне
     def get_success_url(self):
         return reverse_lazy('catalog:mailing_list')
 
@@ -239,17 +267,6 @@ class MailingSettingsUpdateView(UpdateView):
         mailing_settings = form.save(commit=False)
         mailing_settings.message = mailing_message
         mailing_settings.save()
-
-        mailing_client = MailingClient.objects.get(settings_id=mailing_settings.id)
-        mailing_client.client = form.cleaned_data['client']
-        mailing_client.message = mailing_message
-        mailing_client.save()
-
-        email_log = EmailLog.objects.get(settings=mailing_settings)
-        email_log.client = form.cleaned_data['client']
-        email_log.status = form.cleaned_data['status']
-        email_log.message = mailing_message
-        email_log.save()
 
         return super().form_valid(form)
 
